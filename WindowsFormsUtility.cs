@@ -11,6 +11,7 @@ namespace CPUWindowsFormsFramework
     {
         public static void SetListBinding(ComboBox lst, DataTable dtSource, DataTable dtTarget, string tableName)
         {
+            lst.DataBindings.Clear();
             lst.DataSource = dtSource;
             lst.ValueMember = tableName + "Id";
             lst.DisplayMember = tableName + "Name";
@@ -35,6 +36,7 @@ namespace CPUWindowsFormsFramework
             }
             if (!string.IsNullOrEmpty(propertyName) && !string.IsNullOrEmpty(columnName))
             {
+                ctrl.DataBindings.Clear();
                 ctrl.DataBindings.Add(propertyName, dt, columnName, true, DataSourceUpdateMode.OnPropertyChanged);
             }
         }
