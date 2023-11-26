@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Data;
 
 namespace CPUWindowsFormsFramework
 {
@@ -17,7 +12,7 @@ namespace CPUWindowsFormsFramework
             lst.DisplayMember = tableName + "Name";
             lst.DataBindings.Add("SelectedValue", dtTarget, lst.ValueMember, false, DataSourceUpdateMode.OnPropertyChanged);
         }
-        public static void SetControlBinding(Control ctrl, DataTable dt)
+        public static void SetControlBinding(Control ctrl, BindingSource bindSource)
         {
             string propertyName = "";
             string controlName = ctrl.Name.ToLower();
@@ -37,7 +32,7 @@ namespace CPUWindowsFormsFramework
             if (!string.IsNullOrEmpty(propertyName) && !string.IsNullOrEmpty(columnName))
             {
                 ctrl.DataBindings.Clear();
-                ctrl.DataBindings.Add(propertyName, dt, columnName, true, DataSourceUpdateMode.OnPropertyChanged);
+                ctrl.DataBindings.Add(propertyName, bindSource, columnName, true, DataSourceUpdateMode.OnPropertyChanged);
             }
         }
         public static void FormatGridForSearchResults(DataGridView grid)
