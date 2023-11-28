@@ -1,4 +1,5 @@
 ﻿using System.Data;
+using System.DirectoryServices.ActiveDirectory;
 
 namespace CPUWindowsFormsFramework
 {
@@ -41,6 +42,52 @@ namespace CPUWindowsFormsFramework
             grid.ReadOnly = true;
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+        }
+
+        public static bool FormIsOpenAlredy(Type frmtype, int pkValue = 0)
+        {
+            foreach (Form frm in Application.OpenForms)
+            {
+                int frmPkValue = 0;
+                if (frm.Tag != null && frm.Tag is int)
+                {
+                    frmPkValue = (int)frm.Tag;
+                }
+
+                if (frm.GetType() == frmtype && pkValue == frmPkValue)
+                {
+                    frm.Activate();
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public static void SetUpNav(ToolStrip ts)
+        {
+            ts.Items.Clear();
+            foreach (Form f in Application.OpenForms)
+            {
+                if (!f.IsMdiContainer)
+                {
+                    ToolStripButton btn = new() { Text = f.Text, Tag = f };
+                    btn.Click += Btn_Click;
+                    ts.Items.Add(btn);
+                    ts.Items.Add(new ToolStripSeparator());
+                }
+            }
+        }
+
+        private static void Btn_Click(object? sender, EventArgs e)
+        {
+            if (sender is ToolStripButton)
+            {
+                ToolStripButton btn = (ToolStripButton)sender;
+                if (btn.Tag != null && btn.Tag is Form)
+                {
+                    ((Form)btn.Tag).Activate();
+                }
+            }
         }
     }
 }
