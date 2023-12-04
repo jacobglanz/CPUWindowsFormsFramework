@@ -1,5 +1,5 @@
 ﻿using System.Data;
-using System.DirectoryServices.ActiveDirectory;
+using System.Xml.Linq;
 
 namespace CPUWindowsFormsFramework
 {
@@ -36,12 +36,65 @@ namespace CPUWindowsFormsFramework
                 ctrl.DataBindings.Add(propertyName, bindSource, columnName, true, DataSourceUpdateMode.OnPropertyChanged);
             }
         }
-        public static void FormatGridForSearchResults(DataGridView grid)
+        public static void FormatGridForSearchResults(DataGridView grid, string tableName)
         {
             grid.AllowUserToAddRows = false;
             grid.ReadOnly = true;
-            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
+            DoFormatGrid(grid, tableName);
+        }
+
+        public static void FormatGridForEdit(DataGridView grid, string tableName)
+        {
+            grid.EditMode = DataGridViewEditMode.EditOnEnter;
+            DoFormatGrid(grid, tableName);
+        }
+
+        private static void DoFormatGrid(DataGridView grid, string tableName)
+        {
+            grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+            grid.RowHeadersWidth = 25;
+            foreach(DataGridViewColumn col in grid.Columns)
+            {
+                if (col.Name.EndsWith("Id"))
+                {
+                    col.Visible = false;
+                }
+            }
+            string pkName = tableName + "Id";
+            if (grid.Columns.Contains(pkName))
+            {
+                grid.Columns[pkName].Visible = false;
+            }
+        }
+
+        public static int GetPkIdFromGrid(DataGridView grid, string pkCol, int rowIndex)
+        {
+            int id = 0;
+            if (rowIndex < grid.Rows.Count && grid.Columns.Contains(pkCol) && grid.Rows[rowIndex].Cells[pkCol].Value != DBNull.Value)
+            {
+                if (grid.Rows[rowIndex].Cells[pkCol].Value is int)
+                {
+                    id = (int)grid.Rows[rowIndex].Cells[pkCol].Value;
+                }
+            }
+            return id;
+        }
+
+        public static void AddComboBoxToGrid(DataGridView grid, DataTable dataSource, string tableName, string displayMember)
+        {
+            DataGridViewComboBoxColumn c = new();
+            c.DataSource = dataSource;
+            c.DisplayMember = displayMember;
+            c.ValueMember = tableName + "Id";
+            c.DataPropertyName = c.ValueMember;
+            c.HeaderText = tableName;
+            grid.Columns.Insert(0, c);
+        }
+
+        public static void AddDeleteButtonToGrid(DataGridView grid, string deleteColName)
+        {
+            grid.Columns.Add(new DataGridViewButtonColumn() { Text = "X", HeaderText = "Delete", Name = deleteColName, UseColumnTextForButtonValue = true });
         }
 
         public static bool FormIsOpenAlredy(Type frmtype, int pkValue = 0)
