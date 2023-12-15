@@ -22,52 +22,45 @@ namespace CPUWindowsFormsFramework
             string controlName = ctrl.Name.ToLower();
             string controlType = controlName.Substring(0, 3);
             string columnName = controlName.Substring(3);
-            switch (controlType)
+            propertyName = controlType switch 
             {
-                case "lbl":
-                case "txt":
-                    propertyName = "Text";
-                    break;
+                "lbl" => "Text",
+                "txt" => "Text",
+                "dtp" => "Value",
+                "cbx" => "Checked"
+            };
 
-                case "dtp":
-                    propertyName = "Value";
-                    break;
-            }
             if (!string.IsNullOrEmpty(propertyName) && !string.IsNullOrEmpty(columnName))
             {
                 ctrl.DataBindings.Clear();
                 ctrl.DataBindings.Add(propertyName, bindSource, columnName, true, DataSourceUpdateMode.OnPropertyChanged);
             }
         }
-        public static void FormatGridForSearchResults(DataGridView grid, string tableName)
+        public static void FormatGridForSearchResults(DataGridView grid)
         {
             grid.AllowUserToAddRows = false;
             grid.ReadOnly = true;
             grid.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
-            DoFormatGrid(grid, tableName);
+            DoFormatGrid(grid);
         }
 
-        public static void FormatGridForEdit(DataGridView grid, string tableName)
+        public static void FormatGridForEdit(DataGridView grid)
         {
             grid.EditMode = DataGridViewEditMode.EditOnEnter;
-            DoFormatGrid(grid, tableName);
+            DoFormatGrid(grid);
         }
 
-        private static void DoFormatGrid(DataGridView grid, string tableName)
+        private static void DoFormatGrid(DataGridView grid)
         {
+            grid.BackgroundColor = Control.DefaultBackColor;
             grid.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             grid.RowHeadersWidth = 25;
-            foreach(DataGridViewColumn col in grid.Columns)
+            foreach (DataGridViewColumn col in grid.Columns)
             {
                 if (col.Name.EndsWith("Id"))
                 {
                     col.Visible = false;
                 }
-            }
-            string pkName = tableName + "Id";
-            if (grid.Columns.Contains(pkName))
-            {
-                grid.Columns[pkName].Visible = false;
             }
         }
 
@@ -108,20 +101,26 @@ namespace CPUWindowsFormsFramework
 
         public static void AddDeleteButtonToGrid(DataGridView grid, string deleteColName)
         {
-            grid.Columns.Add(new DataGridViewButtonColumn() { Text = "X", HeaderText = "Delete", Name = deleteColName, UseColumnTextForButtonValue = true });
+            grid.Columns.Insert(grid.ColumnCount, new DataGridViewButtonColumn()
+            {
+                Text = "X",
+                HeaderText = "Delete",
+                Name = deleteColName,
+                UseColumnTextForButtonValue = true
+            });
         }
 
-        public static bool FormIsOpenAlredy(Type frmtype, int pkValue = 0)
+        public static bool FormIsOpenAlredy(Type frmType, int pkValue = 0)
         {
             foreach (Form frm in Application.OpenForms)
             {
                 int frmPkValue = 0;
-                if (frm.Tag != null && frm.Tag is int)
+                if (frm.Tag is int)
                 {
                     frmPkValue = (int)frm.Tag;
                 }
 
-                if (frm.GetType() == frmtype && pkValue == frmPkValue)
+                if (frm.GetType() == frmType && pkValue == frmPkValue)
                 {
                     frm.Activate();
                     return true;
